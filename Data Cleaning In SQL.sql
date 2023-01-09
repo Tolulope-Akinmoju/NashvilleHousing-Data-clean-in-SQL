@@ -195,18 +195,34 @@ FROM PortfolioProject.dbo.NashvilleHousing
 SELECT * 
 FROM RowNumCTE
 WHERE ROW_NUM > 1 
---ORDER BY PropertyAddress
+ORDER BY PropertyAddress
+
+--Actual delete of duplicates
+
+WITH RowNumCTE AS(
+ SELECT *,
+	ROW_NUMBER() OVER (
+	PARTITION BY ParcelID,
+				 PropertyAddress,
+				 SalePrice,
+				 SaleDate,
+				 LegalReference
+				 ORDER BY
+					UniqueID
+					) row_num
+
+FROM PortfolioProject.dbo.NashvilleHousing
+--ORDER BY ParcelID
+)
+DELETE
+FROM RowNumCTE
+WHERE ROW_NUM > 1 
 
 
 --Delete Unused Columns
 
+ALTER TABLE PortfolioProject.dbo.NashvilleHousing
+DROP COLUMN OwnerAddress, PropertyAddress, SaleDate
 
 SELECT *
 FROM PortfolioProject.dbo.NashvilleHousing
-
-ALTER TABLE PortfolioProject.dbo.NashvilleHousing
-DROP COLUMN OwnerAddress, TaxDistrict, PropertyAddress
-
-
-ALTER TABLE PortfolioProject.dbo.NashvilleHousing
-DROP COLUMN SaleDate
